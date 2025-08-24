@@ -60,8 +60,14 @@ class DataProvider extends ChangeNotifier {
   List<MyNotification> get notifications => _filteredNotifications;
 
   DataProvider() {
+    getAllProduct();
     getAllCategory();
     getAllSubCategory();
+    getAllBrands();
+    getAllVariantType();
+    getAllVariant();
+    getAllPosters();
+    getAllCoupons();
   }
 
 
@@ -85,7 +91,7 @@ class DataProvider extends ChangeNotifier {
     return _filteredCategories;
   }
   //
-  void filterCategories (String keyword) {
+   void filterCategories (String keyword) {
     if (keyword.isEmpty) {
       _filteredCategories =List.from(_allCategories);
     } else {
@@ -97,7 +103,7 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  getAllSubCategory({bool showSnack = false}) async {
+   getAllSubCategory({bool showSnack = false}) async {
     try {
       final response = await service.getItems(endpointUrl: 'subCategories');
 
@@ -136,9 +142,7 @@ class DataProvider extends ChangeNotifier {
     }
   }
 
-
-
-  void filterSubCategories(String keyword) {
+   void filterSubCategories(String keyword) {
     if (keyword.isEmpty) {
       _filteredSubCategories = List.from(_allSubCategories);
     } else {
@@ -153,43 +157,297 @@ class DataProvider extends ChangeNotifier {
   }
 
 
+   getAllBrands({bool showSnack = false}) async {
+    try {
+      final response = await service.getItems(endpointUrl: 'brands');
+
+      if (response.isOk) {
+        ApiResponse<List<Brand>> apiResponse = ApiResponse<List<Brand>>.fromJson(
+          response.body,
+              (json) => (json as List).map((item) => Brand.fromJson(item)).toList(),
+        );
+
+        _allBrands = apiResponse.data ?? [];
+        _filteredBrands = List.from(_allBrands); // Initialize filtered list with all data
+        notifyListeners();
+
+        if (showSnack) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message ?? 'Brands fetched successfully');
+        }
+      }
+    } catch (e) {
+      if (showSnack) {
+        SnackBarHelper.showErrorSnackBar('An error occurred: $e');
+      }
+      rethrow;
+    }
+
+    return _filteredBrands;
+  }
 
 
-  //TODO: should complete getAllBrands
+   void filterBrands(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredBrands = List.from(_allBrands);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+      _filteredBrands = _allBrands.where((brand) {
+        return (brand.name ?? '').toLowerCase().contains(lowerKeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
 
-  //TODO: should complete filterBrands
+   getAllVariantType({bool showSnack = false}) async {
+    try {
+      final response = await service.getItems(endpointUrl: 'variantTypes');
+
+      if (response.isOk) {
+        ApiResponse<List<VariantType>> apiResponse = ApiResponse<List<VariantType>>.fromJson(
+          response.body,
+              (json) => (json as List).map((item) => VariantType.fromJson(item)).toList(),
+        );
+
+        _allVariantTypes = apiResponse.data ?? [];
+        _filteredVariantTypes = List.from(_allVariantTypes); // Initialize filtered list with all data
+        notifyListeners();
+
+        if (showSnack) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message ?? 'Variant Types fetched successfully');
+        }
+
+        return _filteredVariantTypes;
+      }
+    } catch (e) {
+      if (showSnack) {
+        SnackBarHelper.showErrorSnackBar('An error occurred: $e');
+      }
+      rethrow;
+    }
+
+    return _filteredVariantTypes;
+  }
+
+   filterVariantTypes(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredVariantTypes = List.from(_allVariantTypes);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+      _filteredVariantTypes = _allVariantTypes.where((variantType) {
+        return (variantType.name ?? '').toLowerCase().contains(lowerKeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
+
+   getAllVariant({bool showSnack = false}) async {
+    try {
+      final response = await service.getItems(endpointUrl: 'variants');
+
+      if (response.isOk) {
+        final apiResponse = ApiResponse<List<Variant>>.fromJson(
+          response.body,
+              (json) => (json as List).map((item) => Variant.fromJson(item)).toList(),
+        );
+
+        _allVariants = apiResponse.data ?? [];
+        _filteredVariants = List.from(_allVariants); // Initialize filtered list with all data
+        notifyListeners();
+
+        if (showSnack) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message ?? 'Variants fetched successfully');
+        }
+
+        return _filteredVariants;
+      }
+    } catch (e) {
+      SnackBarHelper.showErrorSnackBar(e.toString());
+      rethrow;
+    }
+
+    return _filteredVariants;
+  }
 
 
-  //TODO: should complete getAllVariantType
+   filterVariants(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredVariants = List.from(_allVariants);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+      _filteredVariants = _allVariants.where((variant) {
+        return (variant.name ?? '').toLowerCase().contains(lowerKeyword);
+      }).toList();
+    }
+    notifyListeners();
+  }
 
 
-  //TODO: should complete filterVariantTypes
+   Future<void> getAllProduct({bool showSnack = false}) async {
+    try {
+      // Fetch response
+      Response response = await service.getItems(endpointUrl: 'products');
+
+      // Parse API response
+      ApiResponse<List<Product>> apiResponse = ApiResponse<List<Product>>.fromJson(
+        response.body,
+            (json) => (json as List).map((item) => Product.fromJson(item)).toList(),
+      );
+
+      // Update product lists
+      _allProducts = apiResponse.data ?? [];
+      _filteredProducts = List.from(_allProducts); // Initialize with original data
+
+      // Notify listeners
+      notifyListeners();
+
+      // Show success message if requested
+      if (showSnack)
+        SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+
+    } catch (e) {
+      // Show error message if requested
+      if (showSnack)SnackBarHelper.showErrorSnackBar(e.toString());
+
+      // Re-throw for higher-level handling
+
+    }
+  }
+
+
+   void filterProducts(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredProducts = List.from(_allProducts);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+
+      _filteredProducts = _allProducts.where((product) {
+        final productNameContainsKeyword = (product.name ?? "").toLowerCase().contains(lowerKeyword);
+
+        final categoryNameContainsKeyword =
+            product.proSubCategoryId?.name?.toLowerCase().contains(lowerKeyword) ?? false;
+
+        final subCategoryNameContainsKeyword =
+            product.proSubCategoryId?.name?.toLowerCase().contains(lowerKeyword) ?? false;
+
+        // ✅ Add more conditions if needed
+        return productNameContainsKeyword || categoryNameContainsKeyword || subCategoryNameContainsKeyword;
+      }).toList();
+
+    }
+    notifyListeners();
+  }
 
 
 
-  //TODO: should complete getAllVariant
+  Future<List<Coupon>> getAllCoupons({bool showSnack = false}) async {
+    try {
+      // Call API
+      Response response = await service.getItems(endpointUrl: 'couponCodes');
+
+      if (response.isOk) {
+        // Parse API response
+        ApiResponse<List<Coupon>> apiResponse = ApiResponse<List<Coupon>>.fromJson(
+          response.body,
+              (json) => (json as List).map((item) => Coupon.fromJson(item)).toList(),
+        );
+
+        // Update state
+        _allCoupons = apiResponse.data ?? [];
+        _filteredCoupons = List.from(_allCoupons);
+        notifyListeners();
+
+        // Show success message if needed
+        if (showSnack) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+        }
+      } else {
+        if (showSnack) {
+          SnackBarHelper.showErrorSnackBar("Failed to load coupons");
+        }
+      }
+    } catch (e) {
+      if (showSnack) {
+        SnackBarHelper.showErrorSnackBar(e.toString());
+      }
+      rethrow;
+    }
+
+    return _filteredCoupons;
+  }
 
 
-  //TODO: should complete filterVariants
+
+  void filterCoupons(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredCoupons = List.from(_allCoupons);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+
+      _filteredCoupons = _allCoupons.where((coupon) {
+        return (coupon.couponCode ?? "")
+            .toLowerCase()
+            .contains(lowerKeyword);
+      }).toList();
+    }
+
+    notifyListeners();
+  }
 
 
-  //TODO: should complete getAllProduct
+
+  Future<List<Poster>> getAllPosters({bool showSnack = false}) async {
+    try {
+      Response response = await service.getItems(endpointUrl: 'posters');
+
+      if (response.isOk) {
+        ApiResponse<List<Poster>> apiResponse =
+        ApiResponse<List<Poster>>.fromJson(
+          response.body,
+              (json) =>
+              (json as List).map((item) => Poster.fromJson(item)).toList(),
+        );
+
+        _allPosters = apiResponse.data ?? [];
+        _filteredPosters = List.from(_allPosters);
+
+        notifyListeners();
+
+        if (showSnack) {
+          SnackBarHelper.showSuccessSnackBar(apiResponse.message);
+        }
+      } else {
+        if (showSnack) {
+          SnackBarHelper.showErrorSnackBar(
+            'Error: ${response.body?['message'] ?? response.statusText}',
+          );
+        }
+      }
+    } catch (e) {
+      if (showSnack) {
+        SnackBarHelper.showErrorSnackBar(e.toString());
+      }
+      rethrow;
+    }
+
+    return _filteredPosters;
+  }
 
 
-  //TODO: should complete filterProducts
 
+  void filterPosters(String keyword) {
+    if (keyword.isEmpty) {
+      _filteredPosters = List.from(_allPosters);
+    } else {
+      final lowerKeyword = keyword.toLowerCase();
+      _filteredPosters = _allPosters.where((poster) {
+        return (poster.posterName ?? "").toLowerCase().contains(lowerKeyword);
+      }).toList();
+    }
 
-  //TODO: should complete getAllCoupons
+    notifyListeners();
+  }
 
-
-  //TODO: should complete filterCoupons
-
-
-  //TODO: should complete getAllPosters
-
-
-  //TODO: should complete filterPosters
 
 
   //TODO: should complete getAllNotifications
@@ -209,10 +467,52 @@ class DataProvider extends ChangeNotifier {
   //TODO: should complete calculateOrdersWithStatus
 
 
-  //TODO: should complete filterProductsByQuantity
+  void filterProductsByQuantity(String productQntType) {
+    if (productQntType == 'All Product') {
+      _filteredProducts = List.from(_allProducts);
+    } else if (productQntType == 'Out of Stock') {
+      _filteredProducts = _allProducts.where((product) {
+        // Filter products with quantity equal to 0 (out of stock)
+        return product.quantity != null && product.quantity == 0;
+      }).toList();
+    } else if (productQntType == 'Limited Stock') {
+      _filteredProducts = _allProducts.where((product) {
+        // Filter products with quantity equal to 1 (limited stock)
+        return product.quantity != null && product.quantity == 1;
+      }).toList();
+    } else if (productQntType == 'Other Stock') {
+      _filteredProducts = _allProducts.where((product) {
+        // Filter products with quantity not equal to 0 or 1 (other stock)
+        return product.quantity != null &&
+            product.quantity != 0 &&
+            product.quantity != 1;
+      }).toList();
+    } else {
+      _filteredProducts = List.from(_allProducts);
+    }
+
+    notifyListeners();
+  }
 
 
-  //TODO: should complete calculateProductWithQuantity
+
+  int calculateProductWithQuantity({int? quantity}) {
+    int totalProduct = 0;
+
+    // If quantity is null, return total products
+    if (quantity == null) {
+      totalProduct = _allProducts.length;
+    } else {
+      for (Product product in _allProducts) {
+        if (product.quantity != null && product.quantity == quantity) {
+          totalProduct += 1; // Increment the count if quantity matches
+        }
+      }
+    }
+
+    return totalProduct;
+  }
+
 
 
 }
