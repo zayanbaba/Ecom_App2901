@@ -8,7 +8,7 @@ const port = 3000;
 app.use(bodyParser.json());
 
 
-mongoose.connect('mongodb+srv://shaikhmohammodsm:agEvP8yqaprZL8WY@rapid.eipvb4a.mongodb.net/?retryWrites=true&w=majority&appName=rapid');
+mongoose.connect('mongodb+srv://shaikhmohammodsm:nSpC6dmdHDs8JErL@rapid.eipvb4a.mongodb.net/?retryWrites=true&w=majority&appName=rapid');
 const db = mongoose.connection;
 db.on('error', (error) => console.error(error));
 db.once('open', () => console.log('Connected to Database'));
